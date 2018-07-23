@@ -167,14 +167,24 @@ class Report(conn: Session, log: Slf4jLogger, keyspace: String, tables: Tables) 
     saveConnectedComponents(connectedComponents, elsToBuckets, ccDirPath)
 
     log.info("Detecting communities in Python")
-    val pythonCmd = s"python3 src/main/python/community-detector/report.py ${ccDirPath}"
-    val rc = pythonCmd.!
+    val jarPath = classOf[RepoFile].getProtectionDomain().getCodeSource().getLocation().toURI().getPath()
+    val jarDir = s"${jarPath.split("/").init.mkString("/")}"
+    val pythonCmds = Array(s"python3 src/main/python/community-detector/report.py ${ccDirPath}",
+                           s"python3 ${jarDir}/src/main/python/community-detector/report.py ${ccDirPath}")
 
-    if (rc == 0) {
+    var success = false
+    var index = 0
+    while (!success && index < pythonCmds.length){
+      val rc = pythonCmds(index).!
+      if (rc == 0) success = true
+      index = index + 1
+    }
+
+    if (success == true) {
       val communities = readCommunities(ccDirPath)
       reportCommunities(communities, elementIds)
     } else {
-      log.error(s"Failed to execute '${pythonCmd}', skipping similarity report")
+      log.error(s"Failed to execute commands ${pythonCmds.map(cmd => s"'${cmd}'").mkString(", ")}, skipping similarity report")
       Iterable[Iterable[RepoFile]]()
     }
   }
