@@ -107,9 +107,9 @@ class Gemini(session: SparkSession, log: Slf4jLogger, keyspace: String = Gemini.
 
     log.info(s"Report duplicate items from DB $keyspace")
     val duplicates = mode match {
-      case ReportApp.defaultMode => ReportExpandedGroup(report.findAllDuplicateItems())
-      case ReportApp.condensedMode => ReportGrouped(report.reportCassandraCondensed())
-      case ReportApp.groupByMode => ReportExpandedGroup(report.reportCassandraGroupBy())
+      case "" => ReportExpandedGroup(report.findAllDuplicateItems()) // ReportApp.defaultMode
+      case "use-group-by" => ReportGrouped(report.reportCassandraCondensed()) // ReportApp.condensedMode
+      case "condensed" => ReportExpandedGroup(report.reportCassandraGroupBy()) // ReportApp.groupByMode
     }
     log.info(s"${duplicates.size} duplicate SHA1s")
 
