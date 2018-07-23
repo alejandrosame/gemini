@@ -53,7 +53,9 @@ assemblyShadeRules in assembly := Seq(
   ShadeRule.rename("io.netty.**" -> "com.datastax.shaded.netty.@1").inAll,
   // bblfsh/scalapb use newer versions than spark
   ShadeRule.rename("com.google.common.**" -> "tech.sourced.gemini.shaded.com.google.common.@1").inAll,
-  ShadeRule.rename("com.google.protobuf.**" -> "tech.sourced.gemini.shaded.com.google.protobuf.@1").inAll
+  ShadeRule.rename("com.google.protobuf.**" -> "tech.sourced.gemini.shaded.com.google.protobuf.@1").inAll,
+  // Spark avro 1.7.7 does not contain LogicalType and takes precedence without shadowing
+  ShadeRule.rename("org.apache.avro.**" -> "tech.sourced.community.code2vec.shaded.org.apache.avro.@1").inAll
 )
 
 test in assembly := {}
