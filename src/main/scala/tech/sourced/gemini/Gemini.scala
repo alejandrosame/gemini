@@ -118,10 +118,13 @@ class Gemini(session: SparkSession, log: Slf4jLogger, keyspace: String = Gemini.
     ReportResult(duplicates, similarities)
   }
 
-  def applySchema(session: Session): Unit = {
+  def applySchema(session: Session, schemaFile: String = ""): Unit = {
+
+    val schemaFilePath:  String = if(schemaFile == "") defaultSchemaFile else schemaFile
+
     log.debug("CQL: creating schema")
     Source
-      .fromFile(defaultSchemaFile)
+      .fromFile(schemaFilePath)
       .getLines
       .map(_.trim)
       .filter(!_.isEmpty)
